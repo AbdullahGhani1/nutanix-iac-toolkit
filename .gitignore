@@ -14,6 +14,8 @@ __pycache__/
 .ruff_cache/
 .venv/
 
-# Generated reports
-vm_inventory.csv
-report.*
+# Generated reports (anchored so source files such as ntnx_report/report.py are never ignored)
+/ansible/vm_inventory.csv
+/reporter/report.md
+/reporter/report.json
+/reporter/report.csv
