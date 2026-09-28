@@ -1,0 +1,36 @@
+---
+# Resolve a VM name to its extId and current ETag.
+# Input: vm_name. Output facts: vm_ext_id, vm_etag, vm_power_state
+- name: "Find VM {{ vm_name }}"
+  ansible.builtin.uri:
+    url: "{{ prism_base_url }}{{ vmm_api }}/ahv/config/vms?$filter={{ ('name eq ' ~ \"'\" ~ vm_name ~ \"'\") | urlencode }}"
+    method: GET
+    url_username: "{{ prism_username }}"
+    url_password: "{{ prism_password }}"
+    force_basic_auth: true
+    validate_certs: "{{ prism_validate_certs }}"
+    return_content: true
+  register: vm_search
+
+- name: "Fail unless exactly one VM is named {{ vm_name }}"
+  ansible.builtin.assert:
+    that: (vm_search.json.data | default([]) | length) == 1
+    fail_msg: "Expected exactly one VM named '{{ vm_name }}', found {{ vm_search.json.data | default([]) | length }}"
+    quiet: true
+
+- name: "Read VM details and ETag for {{ vm_name }}"
+  ansible.builtin.uri:
+    url: "{{ prism_base_url }}{{ vmm_api }}/ahv/config/vms/{{ vm_search.json.data[0].extId }}"
+    method: GET
+    url_username: "{{ prism_username }}"
+    url_password: "{{ prism_password }}"
+    force_basic_auth: true
+    validate_certs: "{{ prism_validate_certs }}"
+    return_content: true
+  register: vm_detail
+
+- name: Record VM identity
+  ansible.builtin.set_fact:
+    vm_ext_id: "{{ vm_detail.json.data.extId }}"
+    vm_etag: "{{ vm_detail.etag }}"
+    vm_power_state: "{{ vm_detail.json.data.powerState | default('UNKNOWN') }}"

@@ -1,0 +1,11 @@
+{
+  "data": [
+    {"extId": "v1", "name": "erp-db-01", "cluster": {"extId": "0005f1a0-0000-4000-8000-0000000dc101"}, "powerState": "ON", "numSockets": 2, "numCoresPerSocket": 8, "numThreadsPerCore": 1, "memorySizeBytes": 137438953472},
+    {"extId": "v2", "name": "erp-app-01", "cluster": {"extId": "0005f1a0-0000-4000-8000-0000000dc101"}, "powerState": "ON", "numSockets": 1, "numCoresPerSocket": 8, "memorySizeBytes": 34359738368},
+    {"extId": "v3", "name": "web-01", "cluster": {"extId": "0005f1a0-0000-4000-8000-0000000dc101"}, "powerState": "ON", "numSockets": 4, "numCoresPerSocket": 1, "memorySizeBytes": 8589934592},
+    {"extId": "v4", "name": "web-02-template", "cluster": {"extId": "0005f1a0-0000-4000-8000-0000000dc101"}, "powerState": "OFF", "numSockets": 4, "numCoresPerSocket": 1, "memorySizeBytes": 8589934592},
+    {"extId": "v5", "name": "dr-analytics-01", "cluster": {"extId": "0005f1a0-0000-4000-8000-0000000dc201"}, "powerState": "ON", "numSockets": 8, "numCoresPerSocket": 12, "memorySizeBytes": 412316860416},
+    {"extId": "v6", "name": "dr-analytics-02", "cluster": {"extId": "0005f1a0-0000-4000-8000-0000000dc201"}, "powerState": "ON", "numSockets": 8, "numCoresPerSocket": 12, "memorySizeBytes": 343597383680}
+  ],
+  "metadata": {"totalAvailableResults": 6}
+}

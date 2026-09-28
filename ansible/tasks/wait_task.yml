@@ -1,0 +1,21 @@
+---
+# Poll a Prism Central v4 task until it finishes. Input: task_ext_id
+- name: "Wait for task {{ task_ext_id }}"
+  ansible.builtin.uri:
+    url: "{{ prism_base_url }}{{ prism_api }}/config/tasks/{{ task_ext_id }}"
+    method: GET
+    url_username: "{{ prism_username }}"
+    url_password: "{{ prism_password }}"
+    force_basic_auth: true
+    validate_certs: "{{ prism_validate_certs }}"
+    return_content: true
+  register: task_status
+  until: task_status.json.data.status in ['SUCCEEDED', 'FAILED', 'CANCELED']
+  retries: "{{ task_poll_retries }}"
+  delay: "{{ task_poll_delay }}"
+
+- name: "Fail unless the task succeeded: {{ task_ext_id }}"
+  ansible.builtin.assert:
+    that: task_status.json.data.status == 'SUCCEEDED'
+    fail_msg: "Task {{ task_ext_id }} ended {{ task_status.json.data.status }}: {{ task_status.json.data.errorMessages | default([]) }}"
+    quiet: true

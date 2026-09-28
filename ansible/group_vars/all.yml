@@ -1,0 +1,17 @@
+---
+# Prism Central connection. Credentials are read from the environment:
+#   export NUTANIX_USERNAME=... NUTANIX_PASSWORD=...
+prism_host: "{{ lookup('ansible.builtin.env', 'NUTANIX_ENDPOINT', default='pc.lab.local') }}"
+prism_port: 9440
+prism_scheme: https
+prism_validate_certs: true
+prism_base_url: "{{ prism_scheme }}://{{ prism_host }}:{{ prism_port }}"
+prism_username: "{{ lookup('ansible.builtin.env', 'NUTANIX_USERNAME') }}"
+prism_password: "{{ lookup('ansible.builtin.env', 'NUTANIX_PASSWORD') }}"
+
+# GA v4 API versions; raise them when every targeted Prism Central supports a newer minor version.
+vmm_api: "/api/vmm/v4.0"
+prism_api: "/api/prism/v4.0"
+
+task_poll_retries: 60
+task_poll_delay: 5

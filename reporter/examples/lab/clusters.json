@@ -1,0 +1,8 @@
+{
+  "data": [
+    {"extId": "0005f1a0-0000-4000-8000-00000000pc01", "name": "prism-central", "config": {"clusterFunction": ["PRISM_CENTRAL"]}},
+    {"extId": "0005f1a0-0000-4000-8000-0000000dc101", "name": "DC1-AHV-PROD", "config": {"clusterFunction": ["AOS"]}},
+    {"extId": "0005f1a0-0000-4000-8000-0000000dc201", "name": "DC2-AHV-DR", "config": {"clusterFunction": ["AOS"]}}
+  ],
+  "metadata": {"totalAvailableResults": 3}
+}

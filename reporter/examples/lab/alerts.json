@@ -1,0 +1,8 @@
+{
+  "data": [
+    {"extId": "a1", "title": "CVM memory usage high", "severity": "WARNING", "isResolved": false, "clusterUUID": "0005f1a0-0000-4000-8000-0000000dc101"},
+    {"extId": "a2", "title": "Protection policy RPO not met", "severity": "CRITICAL", "isResolved": false, "clusterUUID": "0005f1a0-0000-4000-8000-0000000dc201"},
+    {"extId": "a3", "title": "NTP not synchronized", "severity": "WARNING", "isResolved": true, "clusterUUID": "0005f1a0-0000-4000-8000-0000000dc101"}
+  ],
+  "metadata": {"totalAvailableResults": 3}
+}

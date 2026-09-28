@@ -1,0 +1,32 @@
+---
+- name: Look up VM
+  ansible.builtin.include_tasks: lookup_vm.yml
+
+- name: "Report VM already in the desired state: {{ vm_name }}"
+  ansible.builtin.debug:
+    msg: "{{ vm_name }} is already {{ vm_power_state }}"
+  when: vm_power_state == desired_state[power_action]
+
+- name: "Run power action on {{ vm_name }}"
+  when: vm_power_state != desired_state[power_action]
+  block:
+    - name: "POST $actions/{{ power_action }}"
+      ansible.builtin.uri:
+        url: "{{ prism_base_url }}{{ vmm_api }}/ahv/config/vms/{{ vm_ext_id }}/$actions/{{ power_action }}"
+        method: POST
+        url_username: "{{ prism_username }}"
+        url_password: "{{ prism_password }}"
+        force_basic_auth: true
+        validate_certs: "{{ prism_validate_certs }}"
+        headers:
+          If-Match: "{{ vm_etag }}"
+          NTNX-Request-Id: "{{ (vm_ext_id ~ power_action ~ now().isoformat()) | to_uuid }}"
+        status_code: [200, 202]
+        return_content: true
+      register: power_result
+      changed_when: true
+
+    - name: Wait for the power task
+      ansible.builtin.include_tasks: wait_task.yml
+      vars:
+        task_ext_id: "{{ power_result.json.data.extId }}"

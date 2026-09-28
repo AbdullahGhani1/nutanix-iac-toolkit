@@ -1,0 +1,4 @@
+name,ext_id,cluster_ext_id,power_state,vcpus,memory_gib,categories
+{% for vm in all_vms | sort(attribute='name') %}
+"{{ vm.name }}",{{ vm.extId }},{{ vm.cluster.extId | default('') }},{{ vm.powerState | default('') }},{{ (vm.numSockets | default(1)) * (vm.numCoresPerSocket | default(1)) * (vm.numThreadsPerCore | default(1)) }},{{ ((vm.memorySizeBytes | default(0)) / 1073741824) | round(1) }},"{{ vm.categories | default([]) | map(attribute='extId') | join(' ') }}"
+{% endfor %}

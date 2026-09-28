@@ -1,0 +1,51 @@
+---
+# Attach Prism Central categories (e.g. DR-Tier, Environment) to AHV VMs so protection
+# and security policies pick them up.
+#   ansible-playbook playbooks/vm_categories.yml \
+#     -e '{"vm_names": ["lab-db-01"], "categories": ["DR-Tier:PP-NEARSYNC-15M", "Environment:Lab"]}'
+- name: Tag AHV VMs with categories
+  hosts: localhost
+  gather_facts: false
+  vars:
+    vm_names: []
+    categories: []
+  tasks:
+    - name: Validate input
+      ansible.builtin.assert:
+        that:
+          - vm_names | length > 0
+          - categories | length > 0
+          - categories | select('match', '^[^:]+:.+$') | list | length == categories | length
+        fail_msg: "Set vm_names and categories as Key:Value strings"
+        quiet: true
+
+    - name: Resolve each Key:Value to a category extId
+      ansible.builtin.uri:
+        url: "{{ prism_base_url }}{{ prism_api }}/config/categories?$filter={{ category_filter | urlencode }}"
+        method: GET
+        url_username: "{{ prism_username }}"
+        url_password: "{{ prism_password }}"
+        force_basic_auth: true
+        validate_certs: "{{ prism_validate_certs }}"
+        return_content: true
+      vars:
+        category_filter: "key eq '{{ item.split(':', 1)[0] }}' and value eq '{{ item.split(':', 1)[1] }}'"
+      loop: "{{ categories }}"
+      register: category_lookup
+
+    - name: Fail on unknown categories
+      ansible.builtin.assert:
+        that: category_lookup.results | rejectattr('json.data', 'defined') | list | length == 0
+        fail_msg: "Unknown categories: {{ category_lookup.results | rejectattr('json.data', 'defined') | map(attribute='item') | list }}"
+        quiet: true
+
+    - name: Build category references
+      ansible.builtin.set_fact:
+        category_refs: "{{ category_refs | default([]) + [{'extId': item}] }}"
+      loop: "{{ category_lookup.results | map(attribute='json.data') | map('first') | map(attribute='extId') | list }}"
+
+    - name: Associate categories with each VM
+      ansible.builtin.include_tasks: ../tasks/categorize_one.yml
+      loop: "{{ vm_names }}"
+      loop_control:
+        loop_var: vm_name

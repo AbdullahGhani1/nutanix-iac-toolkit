@@ -1,0 +1,46 @@
+---
+# Export an AHV VM inventory (name, cluster, power state, vCPU, memory, categories) to CSV.
+#   ansible-playbook playbooks/vm_inventory_report.yml -e report_path=./vm_inventory.csv
+- name: AHV VM inventory report
+  hosts: localhost
+  gather_facts: false
+  vars:
+    report_path: "{{ playbook_dir }}/../vm_inventory.csv"
+    page_size: 100
+  tasks:
+    - name: Read the first page and the total count
+      ansible.builtin.uri:
+        url: "{{ prism_base_url }}{{ vmm_api }}/ahv/config/vms?$page=0&$limit={{ page_size }}"
+        method: GET
+        url_username: "{{ prism_username }}"
+        url_password: "{{ prism_password }}"
+        force_basic_auth: true
+        validate_certs: "{{ prism_validate_certs }}"
+        return_content: true
+      register: first_page
+
+    - name: Read remaining pages
+      ansible.builtin.uri:
+        url: "{{ prism_base_url }}{{ vmm_api }}/ahv/config/vms?$page={{ item }}&$limit={{ page_size }}"
+        method: GET
+        url_username: "{{ prism_username }}"
+        url_password: "{{ prism_password }}"
+        force_basic_auth: true
+        validate_certs: "{{ prism_validate_certs }}"
+        return_content: true
+      loop: "{{ range(1, ((first_page.json.metadata.totalAvailableResults | default(0) | int) / page_size) | round(0, 'ceil') | int) | list }}"
+      register: other_pages
+
+    - name: Combine pages
+      ansible.builtin.set_fact:
+        all_vms: "{{ (first_page.json.data | default([])) + (other_pages.results | map(attribute='json.data') | flatten) }}"
+
+    - name: Write CSV report
+      ansible.builtin.template:
+        src: vm_inventory.csv.j2
+        dest: "{{ report_path }}"
+        mode: "0644"
+
+    - name: Summary
+      ansible.builtin.debug:
+        msg: "{{ all_vms | length }} VMs written to {{ report_path }}"

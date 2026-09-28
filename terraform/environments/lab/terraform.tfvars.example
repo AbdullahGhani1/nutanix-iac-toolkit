@@ -1,0 +1,35 @@
+# Copy to terraform.tfvars (git-ignored) and adjust to your cluster.
+insecure               = true # Community Edition self-signed certificate
+cluster_name           = "ce-cluster-01"
+storage_container_name = "default-container"
+
+subnets = {
+  "vlan-110-app" = {
+    vlan_id = 110
+    ipam = {
+      network       = "10.10.110.0"
+      prefix_length = 24
+      gateway       = "10.10.110.1"
+      pool_start    = "10.10.110.50"
+      pool_end      = "10.10.110.199"
+      dns_servers   = ["10.10.0.10"]
+      domain_name   = "lab.local"
+    }
+  }
+  "vlan-120-db" = {
+    vlan_id = 120
+  }
+}
+
+vms = {
+  "lab-web-01" = { subnet = "vlan-110-app", categories = ["Environment:Lab", "AppTier:Web", "DR-Tier:PP-ASYNC-4H"] }
+  "lab-db-01" = {
+    subnet         = "vlan-120-db"
+    cores          = 4
+    memory_gib     = 16
+    data_disks_gib = [100]
+    categories     = ["Environment:Lab", "AppTier:DB", "DR-Tier:PP-NEARSYNC-15M"]
+  }
+}
+
+ssh_authorized_keys = ["ssh-ed25519 AAAA... you@laptop"]

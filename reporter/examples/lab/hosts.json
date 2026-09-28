@@ -1,0 +1,11 @@
+{
+  "data": [
+    {"extId": "h1", "hostName": "dc1-node-a", "cluster": {"uuid": "0005f1a0-0000-4000-8000-0000000dc101", "name": "DC1-AHV-PROD"}, "numberOfCpuCores": 32, "memorySizeBytes": 549755813888},
+    {"extId": "h2", "hostName": "dc1-node-b", "cluster": {"uuid": "0005f1a0-0000-4000-8000-0000000dc101", "name": "DC1-AHV-PROD"}, "numberOfCpuCores": 32, "memorySizeBytes": 549755813888},
+    {"extId": "h3", "hostName": "dc1-node-c", "cluster": {"uuid": "0005f1a0-0000-4000-8000-0000000dc101", "name": "DC1-AHV-PROD"}, "numberOfCpuCores": 32, "memorySizeBytes": 549755813888},
+    {"extId": "h4", "hostName": "dc2-node-a", "cluster": {"uuid": "0005f1a0-0000-4000-8000-0000000dc201", "name": "DC2-AHV-DR"}, "numberOfCpuCores": 16, "memorySizeBytes": 274877906944},
+    {"extId": "h5", "hostName": "dc2-node-b", "cluster": {"uuid": "0005f1a0-0000-4000-8000-0000000dc201", "name": "DC2-AHV-DR"}, "numberOfCpuCores": 16, "memorySizeBytes": 274877906944},
+    {"extId": "h6", "hostName": "dc2-node-c", "cluster": {"uuid": "0005f1a0-0000-4000-8000-0000000dc201", "name": "DC2-AHV-DR"}, "numberOfCpuCores": 16, "memorySizeBytes": 274877906944}
+  ],
+  "metadata": {"totalAvailableResults": 6}
+}

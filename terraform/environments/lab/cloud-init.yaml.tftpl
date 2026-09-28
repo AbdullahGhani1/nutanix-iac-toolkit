@@ -1,0 +1,16 @@
+#cloud-config
+hostname: ${hostname}
+users:
+  - name: nxadmin
+    groups: [sudo]
+    shell: /bin/bash
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    lock_passwd: true
+    ssh_authorized_keys:
+%{ for key in ssh_authorized_keys ~}
+      - ${key}
+%{ endfor ~}
+package_update: true
+packages: [qemu-guest-agent, chrony]
+runcmd:
+  - systemctl enable --now qemu-guest-agent chrony

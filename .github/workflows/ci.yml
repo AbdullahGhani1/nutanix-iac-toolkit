@@ -1,0 +1,56 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dir: [modules/ahv-subnet, modules/categories, modules/ahv-vm, environments/lab]
+    defaults:
+      run:
+        working-directory: terraform/${{ matrix.dir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false -input=false
+      - run: terraform validate
+      - name: terraform test (mock provider)
+        if: startsWith(matrix.dir, 'modules/')
+        run: terraform test
+
+  ansible:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ansible-core ansible-lint pytest
+      - working-directory: ansible
+        run: ansible-playbook --syntax-check playbooks/*.yml
+      - working-directory: ansible
+        run: ansible-lint --offline playbooks tasks
+      - working-directory: ansible/tests
+        run: pytest -q
+
+  reporter:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: reporter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: ruff check . && ruff format --check .
+      - run: pytest -q
+      - name: Render sample report
+        run: ntnx-report --fixtures examples/lab || test $? -eq 2

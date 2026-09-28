@@ -1,0 +1,29 @@
+---
+# Change the power state of AHV VMs through the Prism Central v4 VMM API.
+#   ansible-playbook playbooks/vm_power.yml -e '{"vm_names": ["lab-web-01"], "power_action": "guest-shutdown"}'
+# power_action: power-on | power-off | guest-shutdown (graceful, needs NGT) | shutdown (ACPI)
+- name: AHV VM power operations
+  hosts: localhost
+  gather_facts: false
+  vars:
+    vm_names: []
+    power_action: power-on
+    desired_state:
+      power-on: "ON"
+      power-off: "OFF"
+      guest-shutdown: "OFF"
+      shutdown: "OFF"
+  tasks:
+    - name: Validate input
+      ansible.builtin.assert:
+        that:
+          - vm_names | length > 0
+          - power_action in desired_state
+        fail_msg: "Set vm_names and power_action ({{ desired_state.keys() | join(', ') }})"
+        quiet: true
+
+    - name: Apply power action to each VM
+      ansible.builtin.include_tasks: ../tasks/power_one.yml
+      loop: "{{ vm_names }}"
+      loop_control:
+        loop_var: vm_name

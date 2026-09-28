@@ -1,0 +1,27 @@
+---
+- name: Look up VM
+  ansible.builtin.include_tasks: lookup_vm.yml
+
+- name: "Associate categories with {{ vm_name }}"
+  ansible.builtin.uri:
+    url: "{{ prism_base_url }}{{ vmm_api }}/ahv/config/vms/{{ vm_ext_id }}/$actions/associate-categories"
+    method: POST
+    url_username: "{{ prism_username }}"
+    url_password: "{{ prism_password }}"
+    force_basic_auth: true
+    validate_certs: "{{ prism_validate_certs }}"
+    headers:
+      If-Match: "{{ vm_etag }}"
+      NTNX-Request-Id: "{{ (vm_ext_id ~ 'categories' ~ now().isoformat()) | to_uuid }}"
+    body_format: json
+    body:
+      categories: "{{ category_refs }}"
+    status_code: [200, 202]
+    return_content: true
+  register: category_result
+  changed_when: true
+
+- name: Wait for the category task
+  ansible.builtin.include_tasks: wait_task.yml
+  vars:
+    task_ext_id: "{{ category_result.json.data.extId }}"
