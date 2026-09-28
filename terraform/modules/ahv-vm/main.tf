@@ -86,7 +86,8 @@ resource "nutanix_virtual_machine_v2" "this" {
   }
 
   dynamic "guest_customization" {
-    for_each = var.cloud_init_user_data == null ? [] : [1]
+    # Only the null check is unmarked; the user-data itself stays sensitive.
+    for_each = nonsensitive(var.cloud_init_user_data == null) ? [] : [1]
     content {
       config {
         cloud_init {
